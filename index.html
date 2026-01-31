@@ -3,85 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mannat Sharma | Super Sexy Presentation</title>
+    <title>Mannat Sharma | CSS Presentation</title>
     
-    <!-- Cyberpunk Fonts -->
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
     
     <!-- Styles -->
     <style>
         :root {
-            /* Original Super Sexy Palette */
-            --neon-cyan: #00f3ff;
+            --bg-color: #050505;
+            --neon-blue: #00f3ff;
             --neon-purple: #bc13fe;
-            --bg-dark: #050505;
-            --bg-gradient: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #000000 100%);
-            
-            --glass-bg: rgba(0, 0, 0, 0.7);
+            --neon-green: #0aff00;
+            --text-white: #ffffff;
+            --text-gray: #cccccc;
+            --glass-bg: rgba(10, 10, 15, 0.75);
             --glass-border: rgba(0, 243, 255, 0.3);
-            --glass-blur: 10px;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background-color: var(--bg-dark);
-            background-image: var(--bg-gradient);
-            color: white;
+            background-color: var(--bg-color);
+            color: var(--text-white);
             font-family: 'Rajdhani', sans-serif;
-            overflow: hidden;
-            height: 100vh;
+            overflow: hidden; /* Prevent scrolling, it's a PPT */
             width: 100vw;
+            height: 100vh;
         }
 
-        /* 3D Canvas */
+        /* --- 3D Background --- */
         #canvas-container {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             z-index: 1;
-            outline: none;
+            pointer-events: auto; /* Allow 3D interaction */
         }
 
-        /* Scanline Overlay for that "Screen" look */
-        .scanlines {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
-            background-size: 100% 4px;
-            pointer-events: none;
-            z-index: 5;
-            opacity: 0.3;
-        }
-
-        /* UI Layer */
+        /* --- Presentation UI --- */
         #ui-layer {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             z-index: 10;
-            pointer-events: none;
+            pointer-events: none; /* Let clicks pass to controls */
             display: flex;
             flex-direction: column;
             justify-content: center;
         }
 
-        /* Slide Container */
+        /* Slides */
         .slide {
             position: absolute;
             width: 100%;
             height: 100%;
+            padding: 5%;
             display: flex;
-            align-items: center; /* Center vertically */
-            padding: 0 8%;
+            align-items: center;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.5s ease;
         }
 
         .slide.active {
@@ -89,157 +71,144 @@
             pointer-events: auto;
         }
 
-        /* Text Content Layout */
+        /* Content Box (Glassmorphism) */
         .content-box {
-            max-width: 600px;
-            transform: translateY(20px);
-            opacity: 0;
-            transition: all 0.5s ease;
-            /* Glassmorphism Card */
             background: var(--glass-bg);
-            backdrop-filter: blur(var(--glass-blur));
-            -webkit-backdrop-filter: blur(var(--glass-blur));
-            border-left: 4px solid var(--neon-cyan);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-left: 5px solid var(--neon-blue);
             padding: 2.5rem;
-            border-radius: 4px; /* Sharp tech corners */
-            box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
+            border-radius: 8px;
+            max-width: 600px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            transform: translateY(30px);
+            opacity: 0;
+            transition: all 0.6s ease 0.3s; /* Delay for entrance */
         }
 
         .slide.active .content-box {
             transform: translateY(0);
             opacity: 1;
-            transition-delay: 0.3s;
         }
 
         /* Typography */
         h1 {
             font-family: 'Orbitron', sans-serif;
-            font-size: 3.5rem;
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
             line-height: 1.1;
-            margin-bottom: 1rem;
             text-transform: uppercase;
-            color: #fff;
-            text-shadow: 0 0 10px var(--neon-cyan);
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
         }
 
         h2 {
             font-family: 'Orbitron', sans-serif;
-            font-size: 2.2rem;
             color: var(--neon-purple);
+            font-size: 2.2rem;
             margin-bottom: 1rem;
         }
 
         h3 {
-            font-size: 1rem;
-            color: var(--neon-cyan);
+            color: var(--neon-blue);
             letter-spacing: 2px;
             text-transform: uppercase;
-            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
         }
 
         p {
             font-size: 1.2rem;
             line-height: 1.6;
-            color: #ddd;
             margin-bottom: 1.5rem;
+            color: var(--text-gray);
         }
 
-        .highlight {
-            color: var(--neon-cyan);
-            font-weight: 700;
-        }
+        .highlight { color: var(--neon-blue); font-weight: 700; }
 
-        ul {
-            list-style: none;
-            margin-bottom: 1.5rem;
-        }
-
+        ul { list-style: none; margin-bottom: 1.5rem; }
         li {
             font-size: 1.1rem;
             margin-bottom: 0.5rem;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding-bottom: 5px;
-            display: flex;
-            align-items: center;
+            padding-left: 20px;
+            position: relative;
         }
-
         li::before {
             content: '>';
+            position: absolute;
+            left: 0;
             color: var(--neon-purple);
-            margin-right: 10px;
-            font-weight: bold;
         }
 
-        /* Code Block */
-        .code-block {
+        /* Code Block Styling */
+        .code-snippet {
             background: rgba(0,0,0,0.8);
-            border: 1px solid var(--neon-purple);
-            padding: 1rem;
+            border: 1px solid #444;
+            padding: 15px;
             font-family: 'Courier New', monospace;
-            color: var(--neon-cyan);
-            margin-bottom: 1rem;
-            text-shadow: 0 0 5px var(--neon-cyan);
+            color: var(--neon-green);
+            margin: 15px 0;
+            border-radius: 4px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
         }
 
-        /* Controls */
+        /* Navigation Controls */
         .controls {
             position: absolute;
-            bottom: 40px;
+            bottom: 30px;
             width: 100%;
-            padding: 0 5%;
+            padding: 0 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             pointer-events: auto;
-            z-index: 50;
         }
 
         .nav-btn {
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid var(--neon-cyan);
-            color: var(--neon-cyan);
-            padding: 10px 20px;
+            background: transparent;
+            border: 2px solid var(--neon-blue);
+            color: var(--neon-blue);
+            padding: 10px 30px;
             font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s;
             text-transform: uppercase;
             letter-spacing: 1px;
-            box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+            border-radius: 4px;
         }
 
         .nav-btn:hover {
-            background: var(--neon-cyan);
+            background: var(--neon-blue);
             color: #000;
-            box-shadow: 0 0 20px var(--neon-cyan);
+            box-shadow: 0 0 20px var(--neon-blue);
         }
 
-        .progress {
+        .progress-indicator {
             font-family: 'Orbitron', sans-serif;
             color: rgba(255,255,255,0.5);
             font-size: 0.9rem;
         }
 
-        /* Responsive Logic */
+        /* --- Mobile Responsiveness --- */
         @media (max-width: 900px) {
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.6rem; }
+            
             .slide {
-                justify-content: center; /* Center everything */
-                padding: 0 5%;
-                padding-bottom: 120px; /* Push controls up */
-                align-items: flex-end; /* Align text to bottom of visual area */
+                align-items: flex-end; /* Push text down on mobile */
+                padding-bottom: 100px;
+                justify-content: center;
             }
+
             .content-box {
                 width: 100%;
-                background: rgba(0,0,0,0.9); /* Darker on mobile for readability */
-                backdrop-filter: blur(20px);
+                background: rgba(0,0,0,0.9); /* More opaque on mobile */
+                padding: 1.5rem;
             }
-            h1 { font-size: 2.2rem; }
-            h2 { font-size: 1.8rem; }
-            
-            /* On mobile, the 3D canvas is the background */
-            #canvas-container {
-                opacity: 0.4;
-                transform: scale(1.2); /* Zoom out slightly to fit */
-            }
+
+            .controls { padding: 0 20px; bottom: 20px; }
+            .nav-btn { padding: 8px 16px; font-size: 0.8rem; }
         }
     </style>
 
@@ -249,183 +218,202 @@
 </head>
 <body>
 
-    <div class="scanlines"></div>
-
+    <!-- 3D Canvas Background -->
     <div id="canvas-container"></div>
 
+    <!-- UI & Slides -->
     <div id="ui-layer">
-        
-        <!-- Slide 1: Intro -->
+
+        <!-- Slide 1: Intro (Mannat Sharma) -->
         <section class="slide active" id="slide-1">
             <div class="content-box">
-                <h3>Identity</h3>
+                <h3>Introduction</h3>
                 <h1>Mannat Sharma</h1>
-                <p>Diploma in Computer Science | Lawrence Public School</p>
-                <hr style="border-color:var(--neon-purple); margin: 15px 0;">
                 <p class="highlight">Frontend Developer</p>
-                <p style="font-size: 0.9rem;">Creator of a complete Hotel Management System.</p>
+                <p>Diploma in Computer Science</p>
+                <hr style="border-color:rgba(255,255,255,0.1); margin:15px 0;">
+                <ul>
+                    <li><span class="highlight">Education:</span> Lawrence Public School (10th)</li>
+                    <li><span class="highlight">Project:</span> Hotel Management System (Frontend)</li>
+                    <li>Passionate about creating responsive web interfaces.</li>
+                </ul>
             </div>
         </section>
 
-        <!-- Slide 2: Education -->
+        <!-- Slide 2: What is CSS? -->
         <section class="slide" id="slide-2">
             <div class="content-box">
-                <h2>Academic Path</h2>
-                <p>Foundation in technology and coding.</p>
+                <h2>What is CSS?</h2>
+                <h3>Cascading Style Sheets</h3>
+                <p>CSS is the language used to style an HTML document. It describes how HTML elements should be displayed on screen, paper, or in other media.</p>
                 <ul>
-                    <li><span class="highlight">Current:</span> Diploma in Computer Science</li>
-                    <li><span class="highlight">School:</span> Lawrence Public School (10th)</li>
-                    <li>Focus: Web Development & Systems</li>
+                    <li>Controls layout, colors, and fonts.</li>
+                    <li>Saves a lot of work by controlling multiple web pages at once.</li>
+                    <li>External stylesheets are stored in CSS files.</li>
                 </ul>
             </div>
         </section>
 
-        <!-- Slide 3: Project -->
+        <!-- Slide 3: CSS Syntax -->
         <section class="slide" id="slide-3">
             <div class="content-box">
-                <h2>Project Showcase</h2>
-                <h3>Hotel Management System</h3>
-                <p>A full-stack frontend application.</p>
-                <div class="code-block">
-                    HTML + CSS + JS
+                <h2>The Syntax</h2>
+                <p>A CSS rule-set consists of a selector and a declaration block.</p>
+                <div class="code-snippet">
+                    p {<br>
+                    &nbsp;&nbsp;color: red;<br>
+                    &nbsp;&nbsp;text-align: center;<br>
+                    }
                 </div>
                 <ul>
-                    <li>Room Booking Interface</li>
-                    <li>Dashboard Analytics</li>
-                    <li>Responsive Design</li>
+                    <li><span class="highlight">Selector:</span> Points to the HTML element (p).</li>
+                    <li><span class="highlight">Declaration:</span> color: red;</li>
                 </ul>
             </div>
         </section>
 
-        <!-- Slide 4: CSS Intro -->
+        <!-- Slide 4: Selectors -->
         <section class="slide" id="slide-4">
             <div class="content-box">
-                <h1>CSS</h1>
-                <p>Cascading Style Sheets</p>
-                <p>The visual language that makes the web look good. It defines layout, colors, and fonts.</p>
+                <h2>CSS Selectors</h2>
+                <p>Selectors are used to "find" (or select) HTML elements based on their element name, id, class, attribute, and more.</p>
+                <ul>
+                    <li><span class="highlight">Element:</span> div { }</li>
+                    <li><span class="highlight">ID:</span> #myId { }</li>
+                    <li><span class="highlight">Class:</span> .myClass { }</li>
+                    <li><span class="highlight">Universal:</span> * { }</li>
+                </ul>
             </div>
         </section>
 
-        <!-- Slide 5: History -->
+        <!-- Slide 5: The Box Model -->
         <section class="slide" id="slide-5">
             <div class="content-box">
-                <h2>Evolution</h2>
-                <p>From simple text to 3D worlds.</p>
+                <h2>The Box Model</h2>
+                <p>In CSS, the term "box model" is used when talking about design and layout.</p>
                 <ul>
-                    <li><span class="highlight">1996:</span> CSS1 (Basic Styling)</li>
-                    <li><span class="highlight">1998:</span> CSS2 (Positioning)</li>
-                    <li><span class="highlight">Current:</span> CSS3 (Animations, Grid, Flexbox)</li>
+                    <li><span class="highlight">Content:</span> The text/image.</li>
+                    <li><span class="highlight">Padding:</span> Clears area around content.</li>
+                    <li><span class="highlight">Border:</span> A border around padding.</li>
+                    <li><span class="highlight">Margin:</span> Clears area outside border.</li>
                 </ul>
             </div>
         </section>
 
-        <!-- Slide 6: Syntax -->
+        <!-- Slide 6: Flexbox -->
         <section class="slide" id="slide-6">
             <div class="content-box">
-                <h2>The Syntax</h2>
-                <p>Rules to style elements.</p>
-                <div class="code-block">
-                    body {<br>
-                    &nbsp;&nbsp;background: black;<br>
-                    &nbsp;&nbsp;color: cyan;<br>
+                <h2>Flexbox Layout</h2>
+                <p>The Flexible Box Layout Module, makes it easier to design flexible responsive layout structure.</p>
+                <div class="code-snippet">
+                    .container {<br>
+                    &nbsp;&nbsp;display: flex;<br>
+                    &nbsp;&nbsp;justify-content: center;<br>
                     }
                 </div>
-                <p>Select elements, define properties.</p>
+                <p>Perfect for one-dimensional layouts (rows or columns).</p>
             </div>
         </section>
 
-        <!-- Slide 7: Box Model -->
+        <!-- Slide 7: CSS Grid -->
         <section class="slide" id="slide-7">
             <div class="content-box">
-                <h2>The Box Model</h2>
-                <p>Every element is a box.</p>
+                <h2>CSS Grid Layout</h2>
+                <p>Grid Layout is the most powerful layout system available in CSS. It is a 2-dimensional system.</p>
                 <ul>
-                    <li><span class="highlight">Content:</span> Actual data</li>
-                    <li><span class="highlight">Padding:</span> Inner space</li>
-                    <li><span class="highlight">Margin:</span> Outer space</li>
+                    <li>Handles both columns and rows.</li>
+                    <li>Complex "magazine-style" layouts.</li>
+                    <li>Gap property to manage spacing.</li>
                 </ul>
             </div>
         </section>
 
-        <!-- Slide 8: Flexbox -->
+        <!-- Slide 8: Animations -->
         <section class="slide" id="slide-8">
             <div class="content-box">
-                <h2>Flexbox</h2>
-                <p>One-dimensional layout system.</p>
-                <ul>
-                    <li><span class="highlight">Justify-Content:</span> Horizontal alignment</li>
-                    <li><span class="highlight">Align-Items:</span> Vertical alignment</li>
-                    <li>Items flex to fill space.</li>
-                </ul>
+                <h2>CSS Animations</h2>
+                <p>An animation lets an element gradually change from one style to another.</p>
+                <div class="code-snippet">
+                    @keyframes example {<br>
+                    &nbsp;&nbsp;from {background-color: red;}<br>
+                    &nbsp;&nbsp;to {background-color: yellow;}<br>
+                    }
+                </div>
+                <p>Change as many CSS properties as you want, as many times as you want.</p>
             </div>
         </section>
 
-        <!-- Slide 9: Animation -->
+        <!-- Slide 9: Responsiveness -->
         <section class="slide" id="slide-9">
             <div class="content-box">
-                <h2>Animations</h2>
-                <p>Make elements move without JavaScript.</p>
-                <div class="code-block">
-                    @keyframes spin {<br>
-                    &nbsp;&nbsp;from { transform: rotate(0deg); }<br>
-                    &nbsp;&nbsp;to { transform: rotate(360deg); }<br>
+                <h2>Responsive Design</h2>
+                <p>Making web pages look good on all devices.</p>
+                <p>Using the <span class="highlight">@media</span> rule:</p>
+                <div class="code-snippet">
+                    @media only screen and (max-width: 600px) {<br>
+                    &nbsp;&nbsp;body { background-color: lightblue; }<br>
                     }
                 </div>
             </div>
         </section>
 
-        <!-- Slide 10: End -->
+        <!-- Slide 10: Thank You -->
         <section class="slide" id="slide-10">
-            <div class="content-box" style="text-align: center; border-left: none; border-top: 4px solid var(--neon-purple);">
+            <div class="content-box" style="text-align: center; border-left: none; border-top: 5px solid var(--neon-purple);">
                 <h1>Thank You</h1>
-                <p class="highlight">Mannat Sharma</p>
-                <p style="font-size: 0.9rem;">Code. Design. Innovate.</p>
+                <h3>Mannat Sharma</h3>
+                <p>Diploma in Computer Science</p>
+                <p class="highlight">Questions?</p>
             </div>
         </section>
 
+        <!-- Navigation -->
         <div class="controls">
             <button class="nav-btn" onclick="prevSlide()">Previous</button>
-            <div class="progress">Slide <span id="current-slide-num">1</span> / 10</div>
+            <div class="progress-indicator">Slide <span id="current-slide">1</span> / 10</div>
             <button class="nav-btn" onclick="nextSlide()">Next</button>
         </div>
     </div>
 
-    <!-- Logic -->
+    <!-- Script -->
     <script>
         // --- Presentation Logic ---
         let currentSlide = 0;
         const totalSlides = 10;
         const slides = document.querySelectorAll('.slide');
-        const progressEl = document.getElementById('current-slide-num');
+        const progressEl = document.getElementById('current-slide');
 
         function showSlide(index) {
+            // Bounds check
             if (index < 0) index = 0;
             if (index >= totalSlides) index = totalSlides - 1;
+            
+            // Only update if changed
+            if (currentSlide === index) return;
 
-            // 1. Remove active class from current slide
+            // 1. Hide current slide
             slides[currentSlide].classList.remove('active');
+            
+            // 2. Update global index
+            currentSlide = index;
+            progressEl.textContent = currentSlide + 1;
 
-            // 2. Hide Text Animation
-            const oldContent = slides[currentSlide].querySelector('.content-box');
-            if(oldContent) {
-                oldContent.style.opacity = '0';
-                oldContent.style.transform = 'translateY(20px)';
-            }
+            // 3. Show new slide
+            slides[currentSlide].classList.add('active');
 
-            setTimeout(() => {
-                // 3. Activate new slide
-                slides[index].classList.add('active');
-                currentSlide = index;
-                progressEl.textContent = currentSlide + 1;
-
-                // 4. Switch 3D Model (Remove old, add new)
-                update3DScene(currentSlide);
-            }, 300); // Small delay for smooth text fade out
+            // 4. Update 3D Model (The "Morphing" Effect)
+            update3DModel(currentSlide);
         }
 
-        function nextSlide() { if (currentSlide < totalSlides - 1) showSlide(currentSlide + 1); }
-        function prevSlide() { if (currentSlide > 0) showSlide(currentSlide - 1); }
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) showSlide(currentSlide + 1);
+        }
 
+        function prevSlide() {
+            if (currentSlide > 0) showSlide(currentSlide - 1);
+        }
+
+        // Keyboard controls
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
             if (e.key === 'ArrowLeft') prevSlide();
@@ -434,7 +422,8 @@
         // --- Three.js Setup ---
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x050505, 0.02);
+        // Fog for depth fading
+        scene.fog = new THREE.FogExp2(0x050505, 0.03);
 
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.z = 5;
@@ -444,163 +433,162 @@
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         container.appendChild(renderer.domElement);
 
-        // Lights (Neon Setup)
-        const ambientLight = new THREE.AmbientLight(0x404040, 2);
+        // Lights
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         scene.add(ambientLight);
 
-        const pointLight1 = new THREE.PointLight(0x00f3ff, 2, 50); // Cyan
+        const pointLight1 = new THREE.PointLight(0x00f3ff, 2, 50);
         pointLight1.position.set(5, 5, 5);
         scene.add(pointLight1);
 
-        const pointLight2 = new THREE.PointLight(0xbc13fe, 2, 50); // Purple
+        const pointLight2 = new THREE.PointLight(0xbc13fe, 2, 50);
         pointLight2.position.set(-5, -5, 5);
         scene.add(pointLight2);
 
         // Object Group
-        const activeGroup = new THREE.Group();
-        scene.add(activeGroup);
+        const activeModel = new THREE.Group();
+        scene.add(activeModel);
 
-        // Particles (Starfield)
-        const particlesGeo = new THREE.BufferGeometry();
-        const particlesCount = 1000;
-        const posArray = new Float32Array(particlesCount * 3);
-        for(let i=0; i<particlesCount*3; i++) posArray[i] = (Math.random()-0.5)*20;
-        particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const particlesMat = new THREE.PointsMaterial({ color: 0x00f3ff, size: 0.03, transparent: true, opacity: 0.6 });
-        const starField = new THREE.Points(particlesGeo, particlesMat);
-        scene.add(starField);
+        // Materials
+        const wireMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff, wireframe: true });
+        const solidMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.2, metalness: 0.8, emissive: 0x222222 });
 
-        // --- 3D Model Generators ---
-        
-        // Wireframe Material Helper
-        const wireMat = (color) => new THREE.MeshBasicMaterial({ color: color, wireframe: true, transparent: true, opacity: 0.8 });
-        const glowMat = (color) => new THREE.MeshStandardMaterial({ color: color, emissive: color, emissiveIntensity: 0.5, roughness: 0.1 });
-
-        function createHero() {
-            const geo = new THREE.IcosahedronGeometry(1.5, 1);
-            return new THREE.Mesh(geo, wireMat(0x00f3ff));
-        }
-
-        function createBuilding() {
-            const group = new THREE.Group();
-            const base = new THREE.Mesh(new THREE.BoxGeometry(1,2,1), glowMat(0xbc13fe));
-            const top = new THREE.Mesh(new THREE.ConeGeometry(0.8, 0.5, 4), wireMat(0x00f3ff));
-            top.position.y = 1.2;
-            group.add(base, top);
-            return group;
-        }
-
-        function createBoxModel() {
-            const group = new THREE.Group();
-            const core = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), glowMat(0xbc13fe));
-            const shell = new THREE.Mesh(new THREE.BoxGeometry(1.3,1.3,1.3), wireMat(0x00f3ff));
-            group.add(core, shell);
-            return group;
-        }
-
-        function createFlexModel() {
-            const group = new THREE.Group();
-            const geo = new THREE.CylinderGeometry(0.3, 0.3, 1.5, 16);
-            for(let i=0; i<3; i++) {
-                const mesh = new THREE.Mesh(geo, glowMat(0x00f3ff));
-                mesh.position.x = (i-1) * 1.2;
-                mesh.rotation.z = Math.PI / 2;
-                group.add(mesh);
+        // --- Model Generator ---
+        // Returns a specific mesh based on slide index
+        function getModelForSlide(index) {
+            switch(index) {
+                case 0: // Intro
+                    return new THREE.Mesh(new THREE.IcosahedronGeometry(1.5, 0), wireMat);
+                case 1: // What is CSS (Sphere)
+                    return new THREE.Mesh(new THREE.SphereGeometry(1.5, 32, 32), solidMat);
+                case 2: // Syntax (Cube)
+                    return new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2), wireMat);
+                case 3: // Selectors (Cone)
+                    return new THREE.Mesh(new THREE.ConeGeometry(1.5, 2.5, 4), wireMat);
+                case 4: // Box Model (Nested visual)
+                    const group = new THREE.Group();
+                    group.add(new THREE.Mesh(new THREE.BoxGeometry(1,1,1), solidMat));
+                    group.add(new THREE.Mesh(new THREE.BoxGeometry(1.4,1.4,1.4), wireMat));
+                    return group;
+                case 5: // Flexbox (Row of Cylinders)
+                    const flexGroup = new THREE.Group();
+                    for(let i=0; i<3; i++) {
+                        const c = new THREE.Mesh(new THREE.CylinderGeometry(0.3,0.3,1), solidMat);
+                        c.position.x = (i-1)*1.2;
+                        flexGroup.add(c);
+                    }
+                    return flexGroup;
+                case 6: // Grid (3x3 Grid of small spheres)
+                    const gridGroup = new THREE.Group();
+                    for(let x=0; x<3; x++) {
+                        for(let y=0; y<3; y++) {
+                            const s = new THREE.Mesh(new THREE.SphereGeometry(0.3), solidMat);
+                            s.position.set((x-1)*1, (y-1)*1, 0);
+                            gridGroup.add(s);
+                        }
+                    }
+                    return gridGroup;
+                case 7: // Animations (Torus Knot)
+                    return new THREE.Mesh(new THREE.TorusKnotGeometry(1, 0.3, 100, 16), wireMat);
+                case 8: // Responsive (Two rectangles overlapping)
+                    const resGroup = new THREE.Group();
+                    resGroup.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2), solidMat));
+                    const small = new THREE.Mesh(new THREE.PlaneGeometry(1.5,1.5), wireMat);
+                    small.position.z = 0.1;
+                    resGroup.add(small);
+                    return resGroup;
+                case 9: // Thank You (Octahedron)
+                    return new THREE.Mesh(new THREE.OctahedronGeometry(2, 0), new THREE.MeshBasicMaterial({color: 0xbc13fe, wireframe: true}));
+                default:
+                    return new THREE.Mesh(new THREE.BoxGeometry(1,1,1), wireMat);
             }
-            return group;
         }
 
-        function createGeneric() {
-            return new THREE.Mesh(new THREE.TorusGeometry(1, 0.3, 16, 50), wireMat(0xbc13fe));
-        }
-
-        // --- Scene Logic (The "Remove Model" Transition) ---
-        function update3DScene(index) {
-            // 1. Animate OUT current model (Shrink to 0)
-            gsap.to(activeGroup.scale, {
+        // --- Transition Logic ---
+        function update3DModel(index) {
+            // 1. Animate OUT current model (Scale down + Rotate)
+            gsap.to(activeModel.scale, {
                 x: 0, y: 0, z: 0,
                 duration: 0.4,
                 ease: "back.in(1.7)",
                 onComplete: () => {
-                    // 2. Remove old model completely
-                    activeGroup.clear(); 
-                    activeGroup.scale.set(1, 1, 1); // Reset scale logic
-                    
-                    // 3. Create NEW model
-                    let mesh;
-                    const isMobile = window.innerWidth <= 900;
+                    // 2. Clear old model
+                    activeModel.clear();
+                    activeModel.scale.set(1,1,1); // Reset scale logic
 
-                    switch(index) {
-                        case 0: mesh = createHero(); break;
-                        case 1: mesh = createHero(); break; // Reuse for education
-                        case 2: mesh = createBuilding(); break;
-                        case 3: mesh = new THREE.Mesh(new THREE.SphereGeometry(1.5, 32, 32), wireMat(0xbc13fe)); break;
-                        case 6: mesh = createBoxModel(); break;
-                        case 7: mesh = createFlexModel(); break;
-                        case 9: mesh = createGeneric(); break;
-                        default: mesh = new THREE.Mesh(new THREE.OctahedronGeometry(1), wireMat(0x00f3ff));
+                    // 3. Add new model (Initially invisible via scale=0)
+                    const newMesh = getModelForSlide(index);
+                    activeModel.add(newMesh);
+
+                    // Responsive positioning logic
+                    if (window.innerWidth <= 900) {
+                        // Mobile: Center high up
+                        activeModel.position.set(0, -1, -3);
+                    } else {
+                        // Desktop: Move to the right side
+                        activeModel.position.set(2.5, 0, 0);
                     }
 
-                    if(mesh) {
-                        // Positioning Logic
-                        if (!isMobile) {
-                            // Desktop: Move to the right
-                            mesh.position.set(2.5, 0, 0);
-                        } else {
-                            // Mobile: Center and push back
-                            mesh.position.set(0, 1, -2);
-                        }
-                        
-                        activeGroup.add(mesh);
-
-                        // 4. Animate IN new model (Expand from 0)
-                        activeGroup.scale.set(0,0,0);
-                        gsap.to(activeGroup.scale, {
-                            x: 1, y: 1, z: 1,
-                            duration: 0.6,
-                            ease: "elastic.out(1, 0.5)"
-                        });
-                    }
+                    // 4. Animate IN new model (Scale up)
+                    activeModel.scale.set(0,0,0);
+                    gsap.to(activeModel.scale, {
+                        x: 1, y: 1, z: 1,
+                        duration: 0.6,
+                        ease: "elastic.out(1, 0.5)"
+                    });
                 }
             });
         }
 
-        // --- Animation Loop ---
-        let time = 0;
+        // --- Interaction & Animation Loop ---
+        let mouseX = 0;
+        let mouseY = 0;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX - window.innerWidth/2) * 0.001;
+            mouseY = (e.clientY - window.innerHeight/2) * 0.001;
+        });
+
         function animate() {
             requestAnimationFrame(animate);
-            time += 0.01;
 
-            // Rotate stars
-            starField.rotation.y = time * 0.05;
+            // Rotate model slowly
+            activeModel.rotation.x += 0.005;
+            activeModel.rotation.y += 0.01;
 
-            // Animate Active Object
-            if (activeGroup.children.length > 0) {
-                const obj = activeGroup.children[0];
-                obj.rotation.x += 0.005;
-                obj.rotation.y += 0.01;
+            // Interactive rotation
+            activeModel.rotation.x += (mouseY - activeModel.rotation.x) * 0.05;
+            activeModel.rotation.y += (mouseX - activeModel.rotation.y) * 0.05;
 
-                // Flexbox animation
-                if (currentSlide === 7) {
-                    obj.children.forEach((c, i) => {
-                        c.rotation.x = Math.sin(time * 2 + i) * 0.5;
-                    });
-                }
+            // Specific animation for specific slides
+            if (currentSlide === 7) { // Animation slide
+                // Twist the knot
+                activeModel.children[0].rotation.z += 0.02;
+            }
+            if (currentSlide === 5) { // Flexbox slide
+                // Move cylinders
+                activeModel.children.forEach((child, i) => {
+                    child.position.y = Math.sin(Date.now() * 0.003 + i) * 0.5;
+                });
             }
 
             renderer.render(scene, camera);
         }
 
-        // --- Resize & Init ---
+        // --- Resize Handler ---
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
-            update3DScene(currentSlide); // Recalculate position
+            // Trigger position update
+            if (window.innerWidth <= 900) {
+                activeModel.position.set(0, -1, -3);
+            } else {
+                activeModel.position.set(2.5, 0, 0);
+            }
         });
 
-        // Start
-        update3DScene(0);
+        // Initialize
+        update3DModel(0);
         animate();
 
     </script>
