@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mannat Sharma | 3D Interactive Presentation</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <style>
+        :root {
+            --primary: #00f3ff;
+            --secondary: #bc13fe;
+            --dark: #050505;
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--dark);
+            color: white;
+            font-family: 'Rajdhani', sans-serif;
+            overflow: hidden; /* Prevent scrolling, handle slides manually */
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* 3D Canvas */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            outline: none;
+        }
+
+        /* UI Overlay */
+        #ui-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none; /* Let clicks pass to 3D where needed */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Slide Container */
+        .slide {
+            position: absolute;
+            width: 80%;
+            max-width: 1200px;
+            height: 80%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start; /* Default alignment */
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            padding: 2rem;
+        }
+
+        .slide.active {
+            opacity: 1;
+            pointer-events: auto;
+            z-index: 20;
+        }
+
+        /* Glassmorphism Content Card */
+        .content-card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            padding: 3rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-width: 600px;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.5s ease;
+        }
+
+        .slide.active .content-card {
+            transform: translateY(0);
+            opacity: 1;
+            transition-delay: 0.2s;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            background: linear-gradient(90deg, #fff, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: #ddd;
+            margin-bottom: 1rem;
+        }
+
+        ul {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        li {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        li::before {
+            content: '>';
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+        }
+
+        .highlight {
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        /* Controls */
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 50px;
+            pointer-events: auto;
+            align-items: center;
+        }
+
+        .nav-btn {
+            background: rgba(0,0,0,0.6);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .nav-btn:hover {
+            background: var(--primary);
+            color: #000;
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        .progress {
+            font-family: 'Orbitron', sans-serif;
+            color: #666;
+        }
+
+        /* Specific Slide Adjustments */
+        /* Slide 1 Center Align */
+        #slide-1 {
+            align-items: center;
+            text-align: center;
+        }
+        #slide-1 .content-card {
+            border-left: none;
+            border-top: 4px solid var(--secondary);
+            text-align: center;
+        }
+
+        /* Code Block Style */
+        .code-block {
+            background: #1e1e1e;
+            padding: 1rem;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            border-left: 3px solid var(--secondary);
+            margin-top: 1rem;
+            color: #aaddff;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.5rem; }
+            .content-card { padding: 1.5rem; width: 90%; }
+        }
+    </style>
+
+    <!-- Three.js & GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+
+    <!-- 3D Background Container -->
+    <div id="canvas-container"></div>
+
+    <!-- UI Overlay -->
+    <div id="ui-layer">
+        
+        <!-- Slide 1: Intro -->
+        <section class="slide active" id="slide-1">
+            <div class="content-card">
+                <h3>Future Developer</h3>
+                <h1>Mannat Sharma</h1>
+                <p>Diploma in Computer Science</p>
+                <p>Alumni of Lawrence Public School (10th)</p>
+                <hr style="border-color:rgba(255,255,255,0.2); margin: 15px 0;">
+                <p style="font-size: 1rem;">Creator of a full Frontend <span class="highlight">Hotel Management System</span></p>
+                <p class="highlight" style="margin-top:20px; font-size: 0.9rem;">Press Start or Arrow Key to Begin</p>
+            </div>
+        </section>
+
+        <!-- Slide 2: About Education -->
+        <section class="slide" id="slide-2">
+            <div class="content-card">
+                <h2>My Journey</h2>
+                <p>A brief overview of my academic path and technical foundation.</p>
+                <ul>
+                    <li><strong class="highlight">Current:</strong> Pursuing Diploma in Computer Science</li>
+                    <li><strong class="highlight">Secondary:</strong> Lawrence Public School</li>
+                    <li><strong class="highlight">Passion:</strong> Building interactive web experiences</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Slide 3: Project Showcase -->
+        <section class="slide" id="slide-3">
+            <div class="content-card">
+                <h2>Project Showcase</h2>
+                <h3>Hotel Management System</h3>
+                <p>A comprehensive frontend application designed to streamline hotel operations.</p>
+                <ul>
+                    <li>User-friendly interface design.</li>
+                    <li>Real-time booking visualization.</li>
+                    <li>Responsive layout for all devices.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Slide 4: Topic Intro (CSS) -->
+        <section class="slide" id="slide-4">
+            <div class="content-card">
+                <h2>Today's Topic</h2>
+                <h1>CSS</h1>
+                <p><strong>Cascading Style Sheets</strong></p>
+                <p>The language used to style an HTML document. It describes how HTML elements should be displayed on screen, paper, or in other media.</p>
+            </div>
+        </section>
+
+        <!-- Slide 5: CSS History -->
+        <section class="slide" id="slide-5">
+            <div class="content-card">
+                <h2>History & Evolution</h2>
+                <p>CSS was first proposed by Håkon Wium Lie on October 10, 1994.</p>
+                <ul>
+                    <li><strong class="highlight">CSS1:</strong> Font properties, colors, background.</li>
+                    <li><strong class="highlight">CSS2:</strong> Positioning, z-index, media types.</li>
+                    <li><strong class="highlight">CSS3:</strong> Flexbox, Grid, Animations, 3D Transforms.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Slide 6: Syntax -->
+        <section class="slide" id="slide-6">
+            <div class="content-card">
+                <h2>CSS Syntax</h2>
+                <p>The set of rules that defines how to style elements.</p>
+                <div class="code-block">
+                    p {<br>
+                    &nbsp;&nbsp;color: red;<br>
+                    &nbsp;&nbsp;text-align: center;<br>
+                    }
+                </div>
+                <ul style="margin-top: 10px;">
+                    <li><strong class="highlight">Selector:</strong> p (The HTML element)</li>
+                    <li><strong class="highlight">Property:</strong> color (What to change)</li>
+                    <li><strong class="highlight">Value:</strong> red (How to change it)</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Slide 7: Box Model (3D Visual) -->
+        <section class="slide" id="slide-7">
+            <div class="content-card">
+                <h2>The Box Model</h2>
+                <p>Every element in CSS is a box wrapped around the content.</p>
+                <p style="font-size: 0.9rem; opacity: 0.8;">(Look at the 3D model to the right/center)</p>
+                <ul>
+                    <li><strong class="highlight">Content:</strong> The actual text/image.</li>
+                    <li><strong class="highlight">Padding:</strong> Space around content.</li>
+                    <li><strong class="highlight">Border:</strong> A border around the padding.</li>
+                    <li><strong class="highlight">Margin:</strong> Space outside the border.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Slide 8: Flexbox (3D Visual) -->
+        <section class="slide" id="slide-8">
+            <div class="content-card">
+                <h2>Modern Layout: Flexbox</h2>
+                <p>A one-dimensional layout method for laying out items in rows or columns.</p>
+                <ul>
+                    <li><strong class="highlight">Justify-Content:</strong> Aligns items horizontally.</li>
+                    <li><strong class="highlight">Align-Items:</strong> Aligns items vertically.</li>
+                    <li><strong class="highlight">Flex-Direction:</strong> Row or Column.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Slide 9: Animations -->
+        <section class="slide" id="slide-9">
+            <div class="content-card">
+                <h2>CSS Animations</h2>
+                <p>CSS allows animation of HTML elements without using JavaScript or Flash!</p>
+                <div class="code-block">
+                    @keyframes example {<br>
+                    &nbsp;&nbsp;from {background-color: red;}<br>
+                    &nbsp;&nbsp;to {background-color: yellow;}<br>
+                    }
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 10: Conclusion -->
+        <section class="slide" id="slide-10">
+            <div class="content-card" style="text-align: center;">
+                <h1>Thank You</h1>
+                <p>Hope you enjoyed this presentation.</p>
+                <p class="highlight">Mannat Sharma</p>
+                <p style="margin-top: 20px; font-size: 0.9rem;">Ready to code the future.</p>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <div class="controls">
+            <button class="nav-btn" onclick="prevSlide()">Previous</button>
+            <div class="progress">Slide <span id="current-slide-num">1</span> / 10</div>
+            <button class="nav-btn" onclick="nextSlide()">Next</button>
+        </div>
+    </div>
+
+    <!-- Logic Script -->
+    <script>
+        // --- 1. Presentation Logic ---
+        let currentSlide = 0;
+        const totalSlides = 10;
+        const slides = document.querySelectorAll('.slide');
+        const progressEl = document.getElementById('current-slide-num');
+
+        function showSlide(index) {
+            // Loop check
+            if (index < 0) index = 0;
+            if (index >= totalSlides) index = totalSlides - 1;
+
+            // Update Classes
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[index].classList.add('active');
+
+            // Update UI
+            currentSlide = index;
+            progressEl.textContent = currentSlide + 1;
+
+            // Update 3D Scene based on slide
+            update3DScene(currentSlide);
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) showSlide(currentSlide + 1);
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) showSlide(currentSlide - 1);
+        }
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        // --- 2. Three.js Setup (The "Mind-Blowing" Part) ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        // Add subtle fog for depth
+        scene.fog = new THREE.FogExp2(0x050505, 0.02);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        // Lights
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0x00f3ff, 1);
+        pointLight.position.set(5, 5, 5);
+        scene.add(pointLight);
+
+        const secondaryLight = new THREE.PointLight(0xbc13fe, 1);
+        secondaryLight.position.set(-5, -5, 5);
+        scene.add(secondaryLight);
+
+        // --- 3. 3D Objects for Each Slide ---
+        
+        // Group to hold current active objects
+        const activeGroup = new THREE.Group();
+        scene.add(activeGroup);
+
+        // Background Particles (Always present)
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 2000;
+        const posArray = new Float32Array(particlesCount * 3);
+
+        for(let i = 0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 20; // Spread within 20 units
+        }
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.02,
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.8
+        });
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+
+        // Object Creation Helpers
+        function createHeroShape() {
+            // Abstract tech knot
+            const geometry = new THREE.TorusKnotGeometry(1.2, 0.4, 100, 16);
+            const material = new THREE.MeshStandardMaterial({ 
+                color: 0x00f3ff, 
+                wireframe: true,
+                emissive: 0x001133
+            });
+            const mesh = new THREE.Mesh(geometry, material);
+            return mesh;
+        }
+
+        function createBoxModel() {
+            // CSS Box Model Visualization
+            const group = new THREE.Group();
+            
+            // Content
+            const contentGeo = new THREE.BoxGeometry(1, 1, 1);
+            const contentMat = new THREE.MeshStandardMaterial({ color: 0xff0000, transparent: true, opacity: 0.8 });
+            const content = new THREE.Mesh(contentGeo, contentMat);
+            
+            // Padding (Green)
+            const padGeo = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+            const padMat = new THREE.MeshStandardMaterial({ color: 0x00ff00, transparent: true, opacity: 0.2, wireframe: true });
+            const pad = new THREE.Mesh(padGeo, padMat);
+
+            // Border (Yellow)
+            const bordGeo = new THREE.BoxGeometry(2, 2, 2);
+            const bordMat = new THREE.MeshStandardMaterial({ color: 0xffff00, transparent: true, opacity: 0.1 });
+            const bord = new THREE.Mesh(bordGeo, bordMat);
+
+            // Margin (Blue)
+            const margGeo = new THREE.BoxGeometry(2.5, 2.5, 2.5);
+            const margMat = new THREE.MeshStandardMaterial({ color: 0x0000ff, transparent: true, opacity: 0.05, wireframe: true });
+            const marg = new THREE.Mesh(margGeo, margMat);
+
+            group.add(content, pad, bord, marg);
+            return group;
+        }
+
+        function createFlexModel() {
+            const group = new THREE.Group();
+            const geometry = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+            const material = new THREE.MeshNormalMaterial(); // Rainbow colors
+
+            for (let i = 0; i < 4; i++) {
+                const cube = new THREE.Mesh(geometry, material);
+                cube.position.x = (i - 1.5) * 1.2; // Spread them out
+                group.add(cube);
+            }
+            return group;
+        }
+
+        // --- 4. Scene Management Logic ---
+        
+        // Clear active group and load new scene
+        function update3DScene(slideIndex) {
+            // Animate out old objects
+            gsap.to(activeGroup.scale, {
+                x: 0, y: 0, z: 0, 
+                duration: 0.5, 
+                onComplete: () => {
+                    activeGroup.clear(); // Remove all children
+                    activeGroup.scale.set(1, 1, 1); // Reset scale
+
+                    let newMesh;
+
+                    // Switch logic
+                    switch(slideIndex) {
+                        case 0: // Intro
+                            newMesh = createHeroShape();
+                            newMesh.position.set(2, 0, 0); // Move to right side
+                            break;
+                        case 1: // Education
+                            newMesh = createHeroShape();
+                            newMesh.material = new THREE.MeshStandardMaterial({ color: 0xbc13fe, wireframe: true });
+                            newMesh.position.set(2, 0, 0);
+                            break;
+                        case 2: // Project
+                            const building = new THREE.Group();
+                            const base = new THREE.Mesh(new THREE.BoxGeometry(1,2,1), new THREE.MeshStandardMaterial({color: 0x00f3ff}));
+                            const roof = new THREE.Mesh(new THREE.ConeGeometry(0.8, 0.5, 4), new THREE.MeshStandardMaterial({color: 0xffffff}));
+                            roof.position.y = 1.2;
+                            building.add(base, roof);
+                            building.position.set(2.5, 0, 0);
+                            newMesh = building;
+                            break;
+                        case 3: // CSS Intro
+                            newMesh = new THREE.Mesh(new THREE.SphereGeometry(1.2, 32, 32), new THREE.MeshStandardMaterial({ color: 0xff0055, wireframe: true }));
+                            newMesh.position.set(0, 0, -1);
+                            break;
+                        case 6: // Box Model
+                            newMesh = createBoxModel();
+                            newMesh.position.set(2.5, 0, 0);
+                            break;
+                        case 7: // Flexbox
+                            newMesh = createFlexModel();
+                            newMesh.position.set(0, 0, 0);
+                            break;
+                        case 9: // End
+                            newMesh = new THREE.Mesh(new THREE.TorusKnotGeometry(1, 0.3, 100, 16), new THREE.MeshNormalMaterial());
+                            newMesh.position.set(0, 0, 0);
+                            break;
+                        default:
+                            // Default: Some floating cubes
+                            newMesh = new THREE.Group();
+                            const geo = new THREE.IcosahedronGeometry(1, 0);
+                            const mat = new THREE.MeshStandardMaterial({ color: 0x00f3ff, wireframe: true });
+                            const mesh = new THREE.Mesh(geo, mat);
+                            newMesh.add(mesh);
+                            newMesh.position.set(2.5, 0, 0);
+                    }
+
+                    if (newMesh) {
+                        activeGroup.add(newMesh);
+                        // Animate in new objects
+                        activeGroup.scale.set(0,0,0);
+                        gsap.to(activeGroup.scale, { x: 1, y: 1, z: 1, duration: 0.8, ease: "back.out(1.7)" });
+                    }
+                }
+            });
+        }
+
+        // --- 5. Animation Loop ---
+        let time = 0;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            time += 0.005;
+
+            // Rotate Particles
+            particlesMesh.rotation.y = time * 0.1;
+
+            // Animate Active Group contents
+            if (activeGroup.children.length > 0) {
+                const mainObj = activeGroup.children[0];
+                
+                // Intro Slide Spin
+                if (currentSlide === 0 || currentSlide === 1 || currentSlide === 2) {
+                    mainObj.rotation.x += 0.01;
+                    mainObj.rotation.y += 0.015;
+                }
+                
+                // CSS Sphere Pulse
+                if (currentSlide === 3) {
+                    const scale = 1 + Math.sin(time * 5) * 0.1;
+                    mainObj.scale.set(scale, scale, scale);
+                    mainObj.rotation.y -= 0.005;
+                }
+
+                // Box Model Explosion (Slight float)
+                if (currentSlide === 6) {
+                     mainObj.rotation.y += 0.005;
+                }
+
+                // Flexbox alignment animation simulation
+                if (currentSlide === 7) {
+                    mainObj.children.forEach((cube, i) => {
+                        cube.position.y = Math.sin(time * 5 + i) * 0.5;
+                        cube.rotation.x += 0.01;
+                        cube.rotation.z += 0.01;
+                    });
+                    mainObj.rotation.y = Math.sin(time * 2) * 0.2;
+                }
+
+                // End Slide Chaos
+                if (currentSlide === 9) {
+                    mainObj.rotation.x += 0.02;
+                    mainObj.rotation.y += 0.03;
+                    mainObj.position.z = Math.sin(time) * 0.5;
+                }
+            }
+
+            // Mouse parallax effect on camera
+            camera.position.x += (mouseX * 0.5 - camera.position.x) * 0.05;
+            camera.position.y += (-mouseY * 0.5 - camera.position.y) * 0.05;
+            camera.lookAt(scene.position);
+
+            renderer.render(scene, camera);
+        }
+
+        // --- 6. Interactivity ---
+        let mouseX = 0;
+        let mouseY = 0;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+            mouseY = (event.clientY / window.innerHeight) * 2 - 1;
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Initialize
+        update3DScene(0); // Load initial slide object
+        animate();
+
+    </script>
+</body>
+</html>
